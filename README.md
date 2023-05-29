@@ -13,3 +13,5 @@ NOTE: tested on ROS Noetic (Ubuntu 20.04).
 # HOW TO USE
 - source the workspace.
 - run "processing.py" inside "src/open3d_conversions/src/open3d_conversions".
+
+NOTE: plane segmentation is implemented (processing.py), you can substitute this part with your OPEN3D processing.
