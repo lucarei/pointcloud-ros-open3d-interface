@@ -5,6 +5,7 @@ import open3d as o3d
 import numpy as np
 import math
 from math import pi
+import itertools
 
 rospy.init_node('open3d_conversions_example')
 
@@ -16,7 +17,7 @@ def handle_pointcloud(pointcloud2_msg):
 
 rate = rospy.Rate(10)
 
-listener = rospy.Subscriber('/camera/depth_registered/points', PointCloud2, handle_pointcloud, queue_size=1)
+listener = rospy.Subscriber('/zed2i/zed_node/point_cloud/cloud_registered', PointCloud2, handle_pointcloud, queue_size=1)
 publisher = rospy.Publisher('~processed_point_cloud', PointCloud2, queue_size=1)
 
 while not rospy.is_shutdown():
@@ -39,8 +40,17 @@ while not rospy.is_shutdown():
     inlier_cloud.paint_uniform_color([1.0, 0, 0])
     outlier_cloud = pcd.select_by_index(inliers, invert=True)
     
-    chair=outlier_cloud
+    pcd=outlier_cloud
 
+
+    # # Create bounding box:bounds = [ [-0.5,0.5], [-math.inf,math.inf], [-0.12,0]]  # set the bounds
+    # bounds = [ [-0.5,0.5], [-1,0], [-0.10,0]]  # set the bounds
+    # bounding_box_points = list(itertools.product(*bounds))  # create limit points
+    # bounding_box = o3d.geometry.AxisAlignedBoundingBox.create_from_points(
+    #     o3d.utility.Vector3dVector(bounding_box_points))  # create bounding box object
+
+    # # Crop the point cloud using the bounding box:
+    # pcd = pcd.crop(bounding_box)
 #####################ààààà
 #SURFACE
 
@@ -54,6 +64,7 @@ while not rospy.is_shutdown():
 
 
 ##############################à
+    chair=pcd
 
 
     #obb = chair.get_axis_aligned_bounding_box()
@@ -64,11 +75,11 @@ while not rospy.is_shutdown():
 
 
     #print(obb)
-    # o3d.visualization.draw_geometries([chair,obb],
-    #                               zoom=0.7,
-    #                               front=[0.5439, -0.2333, -0.8060],
-    #                               lookat=[2.4615, 2.1331, 1.338],
-    #                               up=[-0.1781, -0.9708, 0.1608])
+    o3d.visualization.draw_geometries([chair,obb],
+                                  zoom=0.7,
+                                  front=[0.5439, -0.2333, -0.8060],
+                                  lookat=[2.4615, 2.1331, 1.338],
+                                  up=[-0.1781, -0.9708, 0.1608])
 
 ###################################################
     rotation_matrix = obb.R
@@ -131,7 +142,7 @@ while not rospy.is_shutdown():
     # print("Yaw (deg):", yaw_deg*pi/180)
 
 
-    o3d_cloud=outlier_cloud
+    o3d_cloud=outlier_cloudewq
     
     ros_cloud = open3d_conversions.to_msg(o3d_cloud, frame_id=current_cloud.header.frame_id, stamp=current_cloud.header.stamp)
     publisher.publish(ros_cloud)
